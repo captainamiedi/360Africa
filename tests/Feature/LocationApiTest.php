@@ -1,0 +1,84 @@
+<?php namespace Tests\APIs;
+
+use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
+use Tests\ApiTestTrait;
+use App\Models\Location;
+
+class LocationApiTest extends TestCase
+{
+//    use ApiTestTrait, WithoutMiddleware, DatabaseTransactions;
+use RefreshDatabase, ApiTestTrait;
+    /**
+     * @test
+     */
+    public function test_create_location()
+    {
+        $location = factory(Location::class)->create()->toArray();
+
+
+        $this->response = $this->json(
+            'POST',
+            '/api/locations', $location
+        )
+        ->assertSuccessful();
+//        $this->assertApiResponse($location);
+    }
+
+    /**
+     * @test
+     */
+    public function test_read_location()
+    {
+        $location = factory(Location::class)->create();
+
+        $this->response = $this->json(
+            'GET',
+            '/api/locations/'.$location->id
+        );
+//        ->assertSuccessful();
+
+        $this->assertApiResponse($location->toArray());
+    }
+
+    /**
+     * @test
+     */
+    public function test_update_location()
+    {
+        $location = factory(Location::class)->create();
+        $editedLocation = factory(Location::class)->make()->toArray();
+
+        $this->response = $this->json(
+            'PUT',
+            '/api/locations/'.$location->id,
+            $editedLocation
+        );
+
+        $this->assertApiResponse($editedLocation);
+    }
+
+    /**
+     * @test
+     */
+    public function test_delete_location()
+    {
+        $location = factory(Location::class)->create();
+
+        $this->response = $this->json(
+            'DELETE',
+             '/api/locations/'.$location->id
+         );
+
+        $this->assertApiSuccess();
+        $this->response = $this->json(
+            'GET',
+            '/api/locations/'.$location->id
+        );
+
+        $this->response->assertStatus(404);
+    }
+}
